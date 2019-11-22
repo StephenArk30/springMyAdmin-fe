@@ -1,3 +1,5 @@
+# springMyAdmin frontend
+
 This project was bootstrapped with [Create React Index](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
@@ -69,17 +71,20 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 ## 功能列表
 ### 查
--[x] 展示所有数据库
--[x] 展示数据库下所有表
--[x] 展示表内所有数据
--[ ] 按条件查询数据
+- [x] 展示所有数据库
+- [x] 展示数据库下所有表
+- [x] 展示表内所有数据
+- [ ] 按条件查询数据
+
 ### 增
--[ ] 增加数据库
--[ ] 增加表
--[x] 增加一条数据
+- [ ] 增加数据库
+- [ ] 增加表
+- [x] 增加一条数据
+
 ### 删
--[ ] 删除数据库
--[x] 删除表
--[x] 删除一条数据
+- [ ] 删除数据库
+- [x] 删除表
+- [x] 删除一条数据
+
 ### 改
--[ ] 修改一条数据
+- [ ] 修改一条数据
