@@ -156,7 +156,8 @@ const styles = theme => ({
     height: 300,
     alignItems: 'center',
     justifyContent: 'center',
-    display: 'flex'
+    display: 'flex',
+    overflowX: 'auto'
   }
 });
 
