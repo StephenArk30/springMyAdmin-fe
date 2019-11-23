@@ -15,12 +15,17 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { getDatabases } from '../../utils/api/read';
 import history from '../../utils/history';
-import Modal from "@material-ui/core/Modal";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import {withStyles} from "@material-ui/core";
-import Paper from "@material-ui/core/Paper";
 import Input from "@material-ui/core/Input";
 import IconButton from "@material-ui/core/IconButton";
 import {createDB} from "../../utils/api/create";
+
+let update = false;
 
 class LeftList extends Component {
   constructor(props) {
@@ -28,7 +33,7 @@ class LeftList extends Component {
     this.state = {
       open: [],
       databases: [],
-      openModal: false,
+      openDialog: false,
       newDatabase: '',
       error: false
     };
@@ -37,9 +42,10 @@ class LeftList extends Component {
     this.handleClickTable = this.handleClickTable.bind(this);
     this.onGetDatabases = this.onGetDatabases.bind(this);
     this.handleCreateDB = this.handleCreateDB.bind(this);
-    this.handleOpenModal = this.handleOpenModal.bind(this);
-    this.handleCloseModel = this.handleCloseModel.bind(this);
+    this.handleOpenDialog = this.handleOpenDialog.bind(this);
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.checkUpdate = this.checkUpdate.bind(this);
 
     this.onGetDatabases();
   }
@@ -85,7 +91,7 @@ class LeftList extends Component {
     createDB(this.state.newDatabase)
       .then(() => {
         this.onGetDatabases();
-        this.handleCloseModel();
+        this.handleCloseDialog();
         this.setState({ newDatabase: '' });
       })
       .catch(err => {
@@ -93,12 +99,12 @@ class LeftList extends Component {
       });
   }
 
-  handleOpenModal() {
-    this.setState({ openModal: true })
+  handleOpenDialog() {
+    this.setState({ openDialog: true })
   }
 
-  handleCloseModel() {
-    this.setState({ openModal: false })
+  handleCloseDialog() {
+    this.setState({ openDialog: false })
   }
 
   handleChange(event) {
@@ -108,9 +114,18 @@ class LeftList extends Component {
     });
   }
 
+  checkUpdate() {
+    // console.log(update, this.props.update);
+    if (update !== this.props.update) {
+      this.onGetDatabases();
+      update = this.props.update;
+    }
+  }
+
   render() {
+    this.checkUpdate();
     let { databases, open } = this.state;
-    let { classes, schema_tables } = this.props;
+    let { schema_tables } = this.props;
     // console.log(databases, schema_tables);
     return (
       <List
@@ -122,32 +137,34 @@ class LeftList extends Component {
           </ListSubheader>
         }
       >
-        <ListItem button onClick={this.handleOpenModal}>
+        <ListItem button onClick={this.handleOpenDialog}>
           <ListItemIcon>
             <AddIcon color='primary'/>
           </ListItemIcon>
           <ListItemText primary="New"/>
         </ListItem>
-        <Modal
-          aria-labelledby="simple-modal-title"
-          aria-describedby="simple-modal-description"
-          open={this.state.openModal}
-          onClose={this.handleCloseModel}
+        <Dialog
+          open={this.state.openDialog}
+          onClose={this.handleCloseDialog}
         >
-          <Paper className={classes.paper}>
+          <DialogTitle id="form-dialog-title">Create Database</DialogTitle>
+          <DialogContent>
+            <DialogContentText>Input a name for the new database</DialogContentText>
             <Input
               placeholder="Database name"
               onChange={this.handleChange}
               error={this.state.error}
             />
+          </DialogContent>
+        <DialogActions>
             <IconButton onClick={this.handleCreateDB}>
               <CheckCircleOutlineIcon color='primary'/>
             </IconButton>
-            <IconButton onClick={this.handleCloseModel}>
+            <IconButton onClick={this.handleCloseDialog}>
               <CancelIcon color='secondary'/>
             </IconButton>
-          </Paper>
-        </Modal>
+          </DialogActions>
+        </Dialog>
         {(databases ? databases : []).map((database, dbIndex) => {
           return(
             <div key={dbIndex}>

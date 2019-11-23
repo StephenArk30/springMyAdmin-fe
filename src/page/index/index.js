@@ -16,7 +16,8 @@ import TableList from './mainContent/tableList'
 import {getTables} from "../../utils/api/read";
 
 let currentTable = '';
-let update = false;
+let updateTables = false;
+let updateDatabases = false;
 
 class Index extends Component {
   constructor(props) {
@@ -33,10 +34,18 @@ class Index extends Component {
 
   changeMain = (type, name) => {
     // console.log(type, name);
-    if (type === 'database') {
+    if (type === 'welcome') {
+      updateDatabases = !updateDatabases;
+      this.setState({
+        mainType: 'welcome',
+        database: '',
+        table: ''
+      });
+    } else if (type === 'database') {
       this.setState({
         mainType: 'table',
         database: name,
+        table: ''
       });
       currentTable = '';
     } else if (type === 'table') {
@@ -72,6 +81,7 @@ class Index extends Component {
     // console.log(this.state);
     if (this.state.mainType === 'table') {
       mainContent = (<TableList
+        changeMain={this.changeMain}
         database={this.state.database}
         tables={this.state.schema_tables[this.state.database]}
         handleGetTables={this.handleGetTables}
@@ -80,13 +90,13 @@ class Index extends Component {
       // console.log('return datatable');
       if (this.state.table !== undefined && this.state.table !== currentTable) {
         currentTable = this.state.table;
-        update = !update;
+        updateTables = !updateTables;
       }
       mainContent = (
         <DataTable
           table={this.state.table}
           database={this.state.database}
-          update={update}
+          update={updateTables}
         />
         );
     }
@@ -114,6 +124,7 @@ class Index extends Component {
             changeMain={this.changeMain}
             schema_tables={this.state.schema_tables}
             handleClickDB={this.handleGetTables}
+            update={updateDatabases}
           />
         </Drawer>
 
