@@ -95,7 +95,7 @@ class LeftList extends Component {
         this.setState({ newDatabase: '' });
       })
       .catch(err => {
-        alert(err);
+        alert(err.msg);
       });
   }
 

@@ -11,6 +11,8 @@ import TableIcon from '@material-ui/icons/TableChart';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { dropDB, dropTable } from "../../../utils/api/delete";
+import Paper from "@material-ui/core/Paper";
+import TableForm from "./tableForm";
 
 class TableList extends React.Component {
   constructor(props) {
@@ -18,25 +20,30 @@ class TableList extends React.Component {
     this.render = this.render.bind(this);
     this.handleDropTable = this.handleDropTable.bind(this);
     this.handleDropDB = this.handleDropDB.bind(this);
+    this.updateTable = this.updateTable.bind(this);
   }
 
   handleDropTable(table) {
     let { database } = this.props;
     dropTable(database, table)
       .then(() => {
-        this.props.handleGetTables(this.props.database);
+        this.updateTable();
       })
       .catch(() => {});
   }
 
-  handleDropDB() {
+  handleDropDB () {
     dropDB(this.props.database)
       .then(() => {
         this.props.changeMain('welcome');
       })
       .catch(err => {
-        alert(err);
+        alert(err.msg);
       });
+  }
+
+  updateTable () {
+    this.props.handleGetTables(this.props.database);
   }
 
   render() {
@@ -46,15 +53,15 @@ class TableList extends React.Component {
     return (
       <div className={classes.root}>
         <div className={classes.header}>
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="h5" className={classes.title}>
             {database}
           </Typography>
           <IconButton edge="end" aria-label="delete">
             <DeleteIcon onClick={() => {this.handleDropDB()}}/>
           </IconButton>
         </div>
-        <div className={classes.demo}>
-          <List>
+        <Paper>
+          <List className={classes.list}>
             {(tables ? tables : []).map((table, tableIndex) => {
               return(
                 <ListItem key={tableIndex}>
@@ -74,7 +81,11 @@ class TableList extends React.Component {
               }
             )}
           </List>
-        </div>
+        </Paper>
+        <TableForm
+          database={database}
+          update={this.updateTable}
+        />
       </div>
     );
   }
@@ -85,17 +96,15 @@ const styles = theme => ({
     flexGrow: 1,
     maxWidth: 752,
   },
-  demo: {
-    backgroundColor: theme.palette.background.paper,
-  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     margin: theme.spacing(4, 0, 2),
   },
-  deleteButton : {
-    // width:
+  list: {
+    maxHeight: 360,
+    overflow: 'auto'
   }
 });
 

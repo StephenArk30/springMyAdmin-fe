@@ -143,9 +143,9 @@ class DataTable extends React.Component {
     };
     this.handleRequestSort = this.handleRequestSort.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.handleEdit = this.handleEdit.bind(this);
     this.handleChangePage = this.handleChangePage.bind(this);
     this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
-    this.sliceRow = this.sliceRow.bind(this);
     this.render = this.render.bind(this);
     this.getTableData = this.getTableData.bind(this);
     this.checkUpdate = this.checkUpdate.bind(this);
@@ -162,6 +162,7 @@ class DataTable extends React.Component {
         let headCells = res.columns;
         this.setState({ headCells, rows, rowsLength });
       })
+      .catch(err => {alert(err.msg);})
   }
 
   handleRequestInsert(values) {
@@ -189,8 +190,12 @@ class DataTable extends React.Component {
         this.getTableData();
       })
       .catch(err => {
-        alert(err);
+        alert(err.msg);
       });
+  };
+
+  handleEdit = (row) => {
+    alert("feature uncompleted");
   };
 
   handleChangePage = async (event, newPage) => {
@@ -202,14 +207,6 @@ class DataTable extends React.Component {
     await setStateAsync(this, {rowsPerPage: parseInt(event.target.value, 10)});
     await setStateAsync(this, {page: 0});
     this.getTableData();
-  };
-
-  sliceRow = row => {
-    let cols = [];
-    for(let col in row) {
-      cols.push(col);
-    }
-    return cols;
   };
 
   async checkUpdate() {
@@ -241,6 +238,7 @@ class DataTable extends React.Component {
               className={classes.table}
               aria-labelledby="tableTitle"
               aria-label="enhanced table"
+              size="small"
             >
               <caption>{this.props.table}</caption>
               <DataTableHead
@@ -261,7 +259,7 @@ class DataTable extends React.Component {
                       >
                         <TableCell>
                           <IconButton edge="end" aria-label="edit"
-                                      onClick={() => this.handleDelete(row)}>
+                                      onClick={() => this.handleEdit(row)}>
                             <EditIcon/>
                           </IconButton>
                         </TableCell>
@@ -271,9 +269,9 @@ class DataTable extends React.Component {
                             <DeleteIcon/>
                           </IconButton>
                         </TableCell>
-                        {this.sliceRow(row).map((col, colIndex) => {
+                        {headCells.map((headCell, headCellIndex) => {
                           return (
-                            <TableCell key={colIndex} align="right">{row[col]}</TableCell>
+                            <TableCell key={headCellIndex} align="right">{row[headCell.COLUMN_NAME] ? row[headCell.COLUMN_NAME] : 'NULL'}</TableCell>
                           );
                         })}
                       </TableRow>
