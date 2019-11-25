@@ -7,6 +7,7 @@ import Clock from './clock';
 import { login } from '../../utils/api/read';
 
 import "./login.scss";
+import {getDays} from "../../utils/util";
 
 class LoginForm extends Component {
   handleLogin () {
@@ -84,6 +85,7 @@ export default class Login extends Component {
     return (
       <div className='container'>
         <Clock/>
+        <div>{getDays()} days to holiday</div>
         <Typography variant="h4" gutterBottom>
           springMyAdmin
         </Typography>

@@ -1,9 +1,9 @@
 import * as request from "../request";
 import {apiList} from "../../config";
 
-export const updateRowURL = (column_values, where) => {
+export const updateRow = (database, table, column_values, where) => {
   return new Promise(((resolve, reject) => {
-    request.post(apiList.updateRowURL, {column_values, where})
+    request.post(apiList.updateRowURL, {database, table, column_values, where})
       .then((res) => {
         // console.log(res);
         if (res && res.hasOwnProperty("res")) {

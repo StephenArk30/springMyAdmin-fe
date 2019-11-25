@@ -16,11 +16,15 @@ import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/AddCircle';
 import ClearIcon from '@material-ui/icons/Clear';
 import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 import { getData } from '../../../utils/api/read';
 import { insertRow } from '../../../utils/api/create';
 import { deleteRow } from '../../../utils/api/delete';
 import { setStateAsync } from '../../../utils/util';
+import {updateRow} from "../../../utils/api/update";
+import Fade from "@material-ui/core/Fade";
+import Snackbar from "@material-ui/core/Snackbar";
 
 function DataTableHead(props) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
@@ -70,6 +74,8 @@ class DataTableInput extends React.Component{
       this.createInsertHandler = this.createInsertHandler.bind(this);
       this.handleChange = this.handleChange.bind(this);
       this.handleClear = this.handleClear.bind(this);
+      this.handleCancel = this.handleCancel.bind(this);
+      this.createUpdateHandler = this.createUpdateHandler.bind(this);
   }
 
   createInsertHandler() {
@@ -80,6 +86,14 @@ class DataTableInput extends React.Component{
       for (let key in this.state) { this.setState({ [key]: '' }); }
   }
 
+  createUpdateHandler() {
+    this.props.finishEdit(this.state);
+  }
+
+  handleCancel() {
+    this.props.cancleEdit();
+  }
+
   handleChange (event) {
     this.setState({
       [event.target.name]: event.target.value
@@ -87,7 +101,7 @@ class DataTableInput extends React.Component{
   };
 
   render() {
-    let {classes, headCells, success} = this.props;
+    let {classes, headCells, success, editing} = this.props;
 
     return (
       <TableRow
@@ -95,13 +109,13 @@ class DataTableInput extends React.Component{
           role="checkbox"
       >
         <TableCell>
-            <IconButton edge="end" aria-label="clear" onClick={this.handleClear}>
-                <ClearIcon/>
+            <IconButton edge="end" aria-label="clear" onClick={editing ? this.handleCancel : this.handleClear}>
+              {editing ? (<CancelIcon/>) : (<ClearIcon/>)}
             </IconButton>
         </TableCell>
         <TableCell>
-            <IconButton edge="end" aria-label="add" onClick={this.createInsertHandler}>
-              {success ? (<CheckCircleOutlineIcon color="primary"/>) : (<AddIcon/>)}
+            <IconButton edge="end" aria-label="add" onClick={editing ? this.createUpdateHandler : this.createInsertHandler}>
+              {success ? (<CheckCircleOutlineIcon color="primary"/>) : (editing ? <CheckCircleOutlineIcon/> : <AddIcon/>)}
             </IconButton>
         </TableCell>
         {headCells.map((headCell, index) => {
@@ -140,11 +154,15 @@ class DataTable extends React.Component {
       rowsLength: 0,
       rows: [],
       headCells: [],
-      success: false
+      success: false,
+      editing: false,
+      edit_row: {}
     };
     this.handleRequestSort = this.handleRequestSort.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.handleEdit = this.handleEdit.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleFinishEdit = this.handleFinishEdit.bind(this);
     this.handleChangePage = this.handleChangePage.bind(this);
     this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this);
     this.render = this.render.bind(this);
@@ -169,7 +187,7 @@ class DataTable extends React.Component {
   handleRequestInsert(values) {
     let { database, table } = this.props;
     insertRow(database, table, values)
-      .then(res => {
+      .then(() => {
         this.getTableData();
         this.setState({ success: true });
         setTimeout(() => {this.setState({ success: false });}, 1000);
@@ -197,8 +215,27 @@ class DataTable extends React.Component {
       });
   };
 
-  handleEdit = (row) => {
-    alert("feature uncompleted");
+  handleEdit = (rowIndex) => {
+    this.setState({
+      editing: true,
+      edit_row: rowIndex
+    });
+  };
+  handleUpdate = (values) => {
+    this.setState({ editing: false });
+    let { rows, edit_row } = this.state;
+    let { database, table } = this.props;
+    updateRow(database, table, values, rows[edit_row])
+      .then(() => {
+        this.setState({success : true});
+        setTimeout(() => {this.setState({ success: false });}, 1000);
+        this.getTableData();
+      })
+      .catch (err => { alert(err.msg); });
+    this.handleFinishEdit();
+  };
+  handleFinishEdit = () => {
+    this.setState({ editing: false });
   };
 
   handleChangePage = async (event, newPage) => {
@@ -243,7 +280,18 @@ class DataTable extends React.Component {
               aria-label="enhanced table"
               size="small"
             >
-              <caption>{this.props.table}</caption>
+              <caption>
+                {this.props.table}
+              </caption>
+              <Snackbar
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                open={this.state.editing}
+                autoHideDuration={100}
+                message={<span className={classes.warn}>Editing row {this.state.edit_row}, input columns you want to change</span>}
+              />
               <DataTableHead
                 classes={classes}
                 order={order}
@@ -262,7 +310,7 @@ class DataTable extends React.Component {
                       >
                         <TableCell>
                           <IconButton edge="end" aria-label="edit"
-                                      onClick={() => this.handleEdit(row)}>
+                                      onClick={() => this.handleEdit(index)}>
                             <EditIcon/>
                           </IconButton>
                         </TableCell>
@@ -293,24 +341,27 @@ class DataTable extends React.Component {
                   rowCount={rowsLength}
                   headCells={headCells}
                   success={this.state.success}
+                  editing={this.state.editing}
+                  cancleEdit={this.handleFinishEdit}
+                  finishEdit={this.handleUpdate}
                 />
               </TableBody>
             </Table>
           </div>
           <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rowsLength}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          backIconButtonProps={{
-            'aria-label': 'previous page',
-          }}
-          nextIconButtonProps={{
-            'aria-label': 'next page',
-          }}
-          onChangePage={this.handleChangePage}
-          onChangeRowsPerPage={this.handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+            component="div"
+            count={rowsLength}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            backIconButtonProps={{
+              'aria-label': 'previous page',
+            }}
+            nextIconButtonProps={{
+              'aria-label': 'next page',
+            }}
+            onChangePage={this.handleChangePage}
+            onChangeRowsPerPage={this.handleChangeRowsPerPage}
           />
         </Paper>
       </div>
@@ -320,34 +371,37 @@ class DataTable extends React.Component {
 
 // style
 const styles = theme => ({
-    root: {
-        width: '100%',
-        marginTop: theme.spacing(3),
-    },
-    paper: {
-        width: '100%',
-        marginBottom: theme.spacing(2),
-    },
-    table: {
-        minWidth: 750,
-    },
-    tableWrapper: {
-        overflowX: 'auto',
-    },
-    visuallyHidden: {
-        border: 0,
-        clip: 'rect(0 0 0 0)',
-        height: 1,
-        margin: -1,
-        overflow: 'hidden',
-        padding: 0,
-        position: 'absolute',
-        top: 20,
-        width: 1,
-    },
-    input: {
-      margin: theme.spacing(1),
-    }
+  root: {
+      width: '100%',
+      marginTop: theme.spacing(3),
+  },
+  paper: {
+      width: '100%',
+      marginBottom: theme.spacing(2),
+  },
+  table: {
+      minWidth: 750,
+  },
+  tableWrapper: {
+      overflowX: 'auto',
+  },
+  visuallyHidden: {
+      border: 0,
+      clip: 'rect(0 0 0 0)',
+      height: 1,
+      margin: -1,
+      overflow: 'hidden',
+      padding: 0,
+      position: 'absolute',
+      top: 20,
+      width: 1,
+  },
+  input: {
+    margin: theme.spacing(1),
+  },
+  warn: {
+      color: '#dc004e'
+  }
 });
 
 export default withStyles(styles, { withTheme: true })(DataTable);

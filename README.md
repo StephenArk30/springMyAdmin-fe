@@ -87,4 +87,6 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 - [x] 删除一条数据
 
 ### 改
-- [ ] 修改一条数据
+- [x] 修改一条数据
+- [ ] 修改数据库
+- [ ] 修改表
