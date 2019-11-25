@@ -3,6 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
+import Clock from './clock';
 import { login } from '../../utils/api/read';
 
 import "./login.scss";
@@ -32,8 +33,8 @@ class LoginForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: 'root',
-      password: '981114',
+      username: '',
+      password: '',
       error: false
     };
     this.handleLogin = this.handleLogin.bind(this);
@@ -64,7 +65,7 @@ class LoginForm extends Component {
             onChange={this.handleChange}
           />
           <div className="goButton">
-            <Button variant="contained" className='goButton' onClick={this.handleLogin}>
+            <Button variant="contained" className='goButton' onClick={this.handleLogin} color="primary">
               Go
             </Button>
           </div>
@@ -82,6 +83,7 @@ export default class Login extends Component {
   render() {
     return (
       <div className='container'>
+        <Clock/>
         <Typography variant="h4" gutterBottom>
           springMyAdmin
         </Typography>

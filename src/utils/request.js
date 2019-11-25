@@ -1,12 +1,8 @@
 const request = (url, config) => {
-  return fetch(url, config).then((res) => {
-    return res.json();
-  }).then((resJson) => {
-    // console.log(resJson);
-    return resJson;
-  }).catch((err) => {
-    console.error(err);
-  });
+  return fetch(url, config)
+    .then((res) => { return res.json(); })
+    .then((resJson) => { return resJson; })
+    .catch((err) => { console.error(err); });
 };
 
 // GET请求
@@ -21,7 +17,6 @@ export const get = (url, param) => {
       }
     }
   }
-  // console.log('get ' + url);
   return request(url, {
     method: 'GET',
     credentials: 'include'
@@ -33,9 +28,7 @@ export const post = (url, data) => {
   // console.log('post ' + url);
   return request(url, {
     body: JSON.stringify(data),
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     method: 'POST',
     credentials: 'include'
   });

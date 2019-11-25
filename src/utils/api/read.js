@@ -5,7 +5,6 @@ export const login = (username, password) => {
   return new Promise(((resolve, reject) => {
     request.post(apiList.loginURL, {username, password})
       .then((res) => {
-        // console.log(res);
         if (res && res.hasOwnProperty("res")) {
           resolve(res.res);
         } else if (res && res.hasOwnProperty("err")) {
@@ -13,7 +12,6 @@ export const login = (username, password) => {
         } else { reject({ msg: 'invalid response' }) }
       })
       .catch((err) => {
-        // console.log(err);
         if (err && err.hasOwnProperty("err")) {
           reject({ msg: err.err });
         } else { reject({ msg: 'invalid response' }) }
@@ -45,7 +43,6 @@ export const getTables = (database) => {
   return new Promise(((resolve, reject) => {
       request.get(apiList.getTableURL, {database})
       .then((res) => {
-        // console.log(res);
         if (res && res.hasOwnProperty("res")) {
           resolve(res.res);
         } else if (res && res.hasOwnProperty("err")) {
@@ -53,7 +50,6 @@ export const getTables = (database) => {
         } else { reject({ msg: 'invalid response' }) }
       })
       .catch((err) => {
-        // console.log(err);
         if (err && err.hasOwnProperty("err")) {
           reject({ msg: err.err });
         } else { reject({ msg: 'invalid response' }) }

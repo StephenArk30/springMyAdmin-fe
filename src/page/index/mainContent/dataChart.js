@@ -15,7 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/AddCircle';
 import ClearIcon from '@material-ui/icons/Clear';
-
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
 
 import { getData } from '../../../utils/api/read';
 import { insertRow } from '../../../utils/api/create';
@@ -69,6 +69,7 @@ class DataTableInput extends React.Component{
       this.render = this.render.bind(this);
       this.createInsertHandler = this.createInsertHandler.bind(this);
       this.handleChange = this.handleChange.bind(this);
+      this.handleClear = this.handleClear.bind(this);
   }
 
   createInsertHandler() {
@@ -76,54 +77,53 @@ class DataTableInput extends React.Component{
   };
 
   handleClear() {
-      for (let key in this.state) {
-          this.setState({ [key]: '' });
-      }
+      for (let key in this.state) { this.setState({ [key]: '' }); }
   }
+
   handleChange (event) {
-    // console.log("value", event.target.value);
     this.setState({
       [event.target.name]: event.target.value
     });
   };
 
   render() {
-      let {classes, headCells} = this.props;
+    let {classes, headCells, success} = this.props;
 
-      return (
-        <TableRow
-            hover
-            role="checkbox"
-        >
-            <TableCell>
-                <IconButton edge="end" aria-label="clear" onClick={this.handleClear}>
-                    <ClearIcon/>
-                </IconButton>
+    return (
+      <TableRow
+          hover
+          role="checkbox"
+      >
+        <TableCell>
+            <IconButton edge="end" aria-label="clear" onClick={this.handleClear}>
+                <ClearIcon/>
+            </IconButton>
+        </TableCell>
+        <TableCell>
+            <IconButton edge="end" aria-label="add" onClick={this.createInsertHandler}>
+              {success ? (<CheckCircleOutlineIcon color="primary"/>) : (<AddIcon/>)}
+            </IconButton>
+        </TableCell>
+        {headCells.map((headCell, index) => {
+          return (
+            <TableCell key={headCell.COLUMN_NAME}
+                       align="right"
+            >
+              <Input
+                  className={classes.input}
+                  inputProps={{
+                      'aria-label': 'description',
+                  }}
+                  value={this.state[headCell.COLUMN_NAME]}
+                  name={headCell.COLUMN_NAME}
+                  placeholder={headCell.COLUMN_NAME}
+                  onChange={this.handleChange}
+              />
             </TableCell>
-            <TableCell>
-                <IconButton edge="end" aria-label="add" onClick={this.createInsertHandler}>
-                    <AddIcon/>
-                </IconButton>
-            </TableCell>
-            {headCells.map((headCell, index) => {
-                return (
-                    <TableCell key={headCell.COLUMN_NAME}
-                               align="right"
-                    >
-                        <Input
-                            className={classes.input}
-                            inputProps={{
-                                'aria-label': 'description',
-                            }}
-                            name={headCell.COLUMN_NAME}
-                            placeholder={headCell.COLUMN_NAME}
-                            onChange={this.handleChange}
-                        />
-                    </TableCell>
-                );
-            })}
-        </TableRow>
-      );
+          );
+        })}
+      </TableRow>
+    );
   }
 }
 
@@ -139,7 +139,8 @@ class DataTable extends React.Component {
       rowsPerPage: 5,
       rowsLength: 0,
       rows: [],
-      headCells: []
+      headCells: [],
+      success: false
     };
     this.handleRequestSort = this.handleRequestSort.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -170,9 +171,11 @@ class DataTable extends React.Component {
     insertRow(database, table, values)
       .then(res => {
         this.getTableData();
+        this.setState({ success: true });
+        setTimeout(() => {this.setState({ success: false });}, 1000);
       })
       .catch(err => {
-        alert('insert error: ' + err);
+        alert('insert error: ' + err.msg);
       });
   }
 
@@ -288,7 +291,8 @@ class DataTable extends React.Component {
                   orderBy={orderBy}
                   onRequestInsert={this.handleRequestInsert}
                   rowCount={rowsLength}
-                  headCells = {headCells}
+                  headCells={headCells}
+                  success={this.state.success}
                 />
               </TableBody>
             </Table>

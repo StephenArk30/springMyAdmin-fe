@@ -150,6 +150,7 @@ const styles = theme => ({
   },
   drawerPaper: {
     width: drawerWidth,
+    height: '100%'
   },
   content: {
     padding: theme.spacing(3),

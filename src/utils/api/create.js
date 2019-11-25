@@ -13,9 +13,8 @@ export const createDB = (database) => {
         } else { reject({ msg: 'invalid response' }) }
       })
       .catch((err) => {
-        // console.log(err);
         if (err && err.hasOwnProperty("err")) {
-          reject({ msg: err.err });
+          reject({ msg: err.msg });
         } else { reject({ msg: 'invalid response' }) }
       });
   }));
