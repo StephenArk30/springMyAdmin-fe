@@ -1,4 +1,5 @@
 const request = (url, config) => {
+  config['mode'] = 'cors';
   return fetch(url, config)
     .then((res) => { return res.json(); })
     .then((resJson) => { return resJson; })
