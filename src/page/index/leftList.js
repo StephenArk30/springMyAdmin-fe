@@ -53,7 +53,7 @@ class LeftList extends Component {
   onGetDatabases() {
     getDatabases().then(databases => {
       let open = [];
-      for (let db in databases) { open.push(false); }
+      for (let db in databases) { open.push(false); } // eslint-disable-line
       this.setState({ databases, open });
     })
       .catch(err => {

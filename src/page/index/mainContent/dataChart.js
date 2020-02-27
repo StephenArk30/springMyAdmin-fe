@@ -23,7 +23,6 @@ import { insertRow } from '../../../utils/api/create';
 import { deleteRow } from '../../../utils/api/delete';
 import { setStateAsync } from '../../../utils/util';
 import {updateRow} from "../../../utils/api/update";
-import Fade from "@material-ui/core/Fade";
 import Snackbar from "@material-ui/core/Snackbar";
 
 function DataTableHead(props) {
